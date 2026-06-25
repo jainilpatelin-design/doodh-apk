@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doodh Delivery Manager</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap');
+
+  :root {
+    --cream: #FDF6EC;
+    --milk-white: #FFFDF9;
+    --blue-deep: #1A3A5C;
+    --blue-mid: #2D6A9F;
+    --blue-light: #EAF3FB;
+    --gold: #F5A623;
+    --gold-light: #FEF3DC;
+    --green: #27AE60;
+    --green-light: #E8F8F0;
+    --red: #E53E3E;
+    --red-light: #FEF0F0;
+    --grey: #8C9BAB;
+    --border: #D6E4F0;
+    --shadow: 0 2px 12px rgba(26,58,92,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--cream);
+    color: var(--blue-deep);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--blue-deep);
+    padding: 16px 20px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 3px 14px rgba(26,58,92,0.18);
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header-icon { font-size: 28px; }
+  .header-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+  }
+  .header-sub { font-size: 11px; color: #90B8D9; font-weight: 600; letter-spacing: 0.5px; }
+  .date-badge {
+    background: var(--gold);
+    color: var(--blue-deep);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 11px;
+    border-radius: 20px;
+    text-align: center;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: var(--blue-deep);
+    padding: 0 16px 12px;
+    gap: 8px;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px 0;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.65);
+  }
+  .tab.active {
+    background: var(--gold);
+    color: var(--blue-deep);
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 10px;
+    padding: 14px 16px;
+    background: var(--milk-white);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-card {
+    flex: 1;
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .stat-num {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .stat-label { font-size: 10px; color: var(--grey); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.3px; }
+  .stat-card.delivered .stat-num { color: var(--green); }
+  .stat-card.pending .stat-num { color: var(--gold); }
+  .stat-card.total .stat-num { color: var(--blue-mid); }
+  .stat-card.skipped .stat-num { color: var(--red); }
+
+  /* SEARCH + CONTROLS */
+  .controls {
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    background: var(--milk-white);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 104px;
+    z-index: 90;
+  }
+  .search-wrap {
+    flex: 1;
+    position: relative;
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 10px 14px 10px 36px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    background: var(--cream);
+    color: var(--blue-deep);
+    outline: none;
+    transition: border 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--blue-mid); }
+  .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 15px; }
+  .btn-reset {
+    padding: 10px 14px;
+    border: 1.5px solid var(--red);
+    border-radius: 10px;
+    background: var(--red-light);
+    color: var(--red);
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-reset:hover { background: var(--red); color: #fff; }
+
+  /* FILTER CHIPS */
+  .filter-row {
+    display: flex;
+    gap: 7px;
+    padding: 10px 16px 12px;
+    overflow-x: auto;
+    background: var(--milk-white);
+    border-bottom: 1px solid var(--border);
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    border: 1.5px solid var(--border);
+    background: var(--cream);
+    color: var(--grey);
+    transition: all 0.2s;
+  }
+  .chip.active-chip { border-color: var(--blue-mid); background: var(--blue-light); color: var(--blue-mid); }
+  .chip.chip-done { border-color: var(--green); background: var(--green-light); color: var(--green); }
+  .chip.chip-pending { border-color: var(--gold); background: var(--gold-light); color: #b07800; }
+  .chip.chip-skip { border-color: var(--red); background: var(--red-light); color: var(--red); }
+
+  /* CUSTOMER LIST */
+  .list-container { padding: 12px 16px; padding-bottom: 100px; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--grey);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 10px 0 8px;
+  }
+
+  .customer-card {
+    background: var(--milk-white);
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    margin-bottom: 9px;
+    overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .customer-card:hover { box-shadow: var(--shadow); }
+  .customer-card.is-delivered { border-color: #A8E6C5; background: #FAFFFC; }
+  .customer-card.is-skipped { border-color: #F5B8B8; background: #FFFAFA; opacity: 0.85; }
+
+  .card-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+  }
+
+  .cust-avatar {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    flex-shrink: 0;
+    color: #fff;
+  }
+
+  .cust-info { flex: 1; min-width: 0; }
+  .cust-name {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--blue-deep);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cust-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 3px;
+    flex-wrap: wrap;
+  }
+  .cust-meta span {
+    font-size: 11px;
+    color: var(--grey);
+    font-weight: 600;
+  }
+  .qty-badge {
+    background: var(--blue-light);
+    color: var(--blue-mid);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 8px;
+  }
+  .time-badge {
+    background: var(--gold-light);
+    color: #a07000;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 8px;
+  }
+
+  /* STATUS ACTIONS */
+  .card-actions {
+    display: flex;
+    border-top: 1px solid var(--border);
+  }
+  .action-btn {
+    flex: 1;
+    padding: 10px 6px;
+    border: none;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: background 0.15s;
+    color: var(--grey);
+  }
+  .action-btn:not(:last-child) { border-right: 1px solid var(--border); }
+  .action-btn.btn-deliver { color: var(--green); }
+  .action-btn.btn-deliver:hover { background: var(--green-light); }
+  .action-btn.btn-skip { color: var(--red); }
+  .action-btn.btn-skip:hover { background: var(--red-light); }
+  .action-btn.btn-note { color: var(--blue-mid); }
+  .action-btn.btn-note:hover { background: var(--blue-light); }
+  .action-btn.active-deliver { background: var(--green-light); color: var(--green); }
+  .action-btn.active-skip { background: var(--red-light); color: var(--red); }
+
+  /* INLINE NOTE */
+  .note-area {
+    padding: 0 14px 12px;
+    display: none;
+  }
+  .note-area.open { display: block; }
+  .note-area input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    background: var(--cream);
+    color: var(--blue-deep);
+    outline: none;
+  }
+  .note-area input:focus { border-color: var(--blue-mid); }
+
+  /* ADD CUSTOMER FAB */
+  .fab-wrap {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 200;
+  }
+  .fab {
+    flex: 1;
+    padding: 14px 10px;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    box-shadow: 0 4px 18px rgba(26,58,92,0.18);
+  }
+  .fab-add { background: var(--blue-deep); color: #fff; }
+  .fab-all { background: var(--green); color: #fff; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(26,58,92,0.45);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--milk-white);
+    border-radius: 20px;
+    padding: 24px 20px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(26,58,92,0.22);
+  }
+  .modal-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--blue-deep);
+    margin-bottom: 18px;
+  }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; font-weight: 800; color: var(--grey); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    background: var(--cream);
+    color: var(--blue-deep);
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--blue-mid); }
+  .form-row { display: flex; gap: 10px; }
+  .form-row .form-group { flex: 1; }
+  .modal-btns { display: flex; gap: 10px; margin-top: 8px; }
+  .btn-cancel {
+    flex: 1; padding: 12px; border: 1.5px solid var(--border);
+    border-radius: 10px; background: transparent; color: var(--grey);
+    font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .btn-save {
+    flex: 2; padding: 12px; border: none;
+    border-radius: 10px; background: var(--blue-deep); color: #fff;
+    font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--grey);
+  }
+  .empty-state .big { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; font-weight: 600; }
+
+  /* PROGRESS BAR */
+  .progress-wrap { padding: 0 16px 10px; background: var(--milk-white); }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--grey);
+    margin-bottom: 5px;
+  }
+  .progress-bar-bg {
+    height: 6px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), #5ED49A);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  .no-results { text-align: center; padding: 30px; color: var(--grey); font-weight: 600; }
+
+  /* SUMMARY TAB */
+  .summary-section { padding: 16px; }
+  .summary-card {
+    background: var(--milk-white);
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .summary-card h3 {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--blue-deep);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .name { font-weight: 700; color: var(--blue-deep); }
+  .summary-row .detail { font-size: 12px; color: var(--grey); }
+  .summary-row .liters { font-weight: 800; color: var(--blue-mid); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <span class="header-icon">🥛</span>
+    <div>
+      <div class="header-title">Doodh Delivery</div>
+      <div class="header-sub">Daily Customer Manager</div>
+    </div>
+  </div>
+  <div class="date-badge" id="dateBadge"></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('delivery')">🚴 Delivery</button>
+  <button class="tab" onclick="switchTab('customers')">👥 Customers</button>
+  <button class="tab" onclick="switchTab('summary')">📊 Summary</button>
+</div>
+
+<!-- DELIVERY TAB -->
+<div id="tab-delivery">
+  <div class="stats-bar">
+    <div class="stat-card total"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total</div></div>
+    <div class="stat-card delivered"><div class="stat-num" id="statDone">0</div><div class="stat-label">Done ✓</div></div>
+    <div class="stat-card pending"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending</div></div>
+    <div class="stat-card skipped"><div class="stat-num" id="statSkip">0</div><div class="stat-label">Skipped</div></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>Today's Progress</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+  </div>
+  <div class="controls">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchDelivery" placeholder="Search customer name..." oninput="renderDelivery()">
+    </div>
+    <button class="btn-reset" onclick="confirmReset()">↺ Reset</button>
+  </div>
+  <div class="filter-row">
+    <button class="chip active-chip" id="chip-all" onclick="setFilter('all')">All</button>
+    <button class="chip chip-pending" id="chip-pending" onclick="setFilter('pending')">⏳ Pending</button>
+    <button class="chip chip-done" id="chip-done" onclick="setFilter('done')">✅ Done</button>
+    <button class="chip chip-skip" id="chip-skip" onclick="setFilter('skipped')">🚫 Skipped</button>
+  </div>
+  <div class="list-container" id="deliveryList"></div>
+</div>
+
+<!-- CUSTOMERS TAB -->
+<div id="tab-customers" style="display:none">
+  <div class="controls">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchCust" placeholder="Search customers..." oninput="renderCustomers()">
+    </div>
+  </div>
+  <div class="list-container" id="customerList"></div>
+</div>
+
+<!-- SUMMARY TAB -->
+<div id="tab-summary" style="display:none">
+  <div class="summary-section" id="summaryContent"></div>
+</div>
+
+<!-- FAB -->
+<div class="fab-wrap">
+  <button class="fab fab-add" onclick="openAddModal()">＋ Add Customer</button>
+  <button class="fab fab-all" onclick="markAllDelivered()">✓ All Done</button>
+</div>
+
+<!-- ADD/EDIT CUSTOMER MODAL -->
+<div class="modal-overlay" id="custModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Add New Customer</div>
+    <div class="form-group">
+      <label class="form-label">Customer Name *</label>
+      <input class="form-input" id="fName" placeholder="e.g. Ramesh Patel" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Address / Area</label>
+      <input class="form-input" id="fAddress" placeholder="e.g. Near Swaminarayan Temple" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Milk (Liters/day)</label>
+        <input class="form-input" id="fQty" type="number" min="0.5" step="0.5" placeholder="1" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Delivery Time</label>
+        <input class="form-input" id="fTime" placeholder="6:00 AM" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone (optional)</label>
+      <input class="form-input" id="fPhone" placeholder="9876543210" />
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveCustomer()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────
+const COLORS = ['#2D6A9F','#8E44AD','#16A085','#C0392B','#E67E22','#1ABC9C','#2980B9','#7D3C98','#1E8449','#A93226','#D35400','#117A65','#6C3483','#1A5276','#784212'];
+
+let customers = [];
+let deliveryStatus = {}; // { id: { status: 'pending'|'done'|'skipped', note: '' } }
+let editingId = null;
+let currentFilter = 'all';
+let currentTab = 'delivery';
+
+// ── STORAGE ──────────────────────────────────────────────────────
+function save() {
+  localStorage.setItem('doodh_customers', JSON.stringify(customers));
+  const today = todayKey();
+  const stored = JSON.parse(localStorage.getItem('doodh_delivery') || '{}');
+  stored[today] = deliveryStatus;
+  localStorage.setItem('doodh_delivery', JSON.stringify(stored));
+}
+
+function load() {
+  customers = JSON.parse(localStorage.getItem('doodh_customers') || '[]');
+  if (customers.length === 0) seedSampleData();
+  const today = todayKey();
+  const stored = JSON.parse(localStorage.getItem('doodh_delivery') || '{}');
+  deliveryStatus = stored[today] || {};
+  // Init any new customers
+  customers.forEach(c => {
+    if (!deliveryStatus[c.id]) deliveryStatus[c.id] = { status: 'pending', note: '' };
+  });
+}
+
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function seedSampleData() {
+  const names = ['Ramesh Patel','Suresh Shah','Anita Mehta','Vijay Kumar','Priya Desai','Mahesh Joshi','Kavita Sharma','Raju Tiwari','Sunita Gupta','Deepak Nair','Pooja Yadav','Arvind Singh','Rekha Pandey','Rajesh Verma','Geeta Jain','Mohan Das','Sanjay Bhatt','Nisha Agarwal','Rohit Mishra','Leela Bai'];
+  const areas = ['Alkapuri','Sayajigunj','Fatehgunj','Manjalpur','Gotri','Akota','Vadsar','Waghodia Rd','Sama','Karelibaug'];
+  const times = ['5:30 AM','6:00 AM','6:30 AM','7:00 AM','7:30 AM'];
+  names.forEach((name, i) => {
+    customers.push({
+      id: 'c' + (Date.now() + i),
+      name,
+      address: areas[i % areas.length],
+      qty: [0.5, 1, 1.5, 2][i % 4],
+      time: times[i % times.length],
+      phone: '',
+      color: COLORS[i % COLORS.length]
+    });
+  });
+}
+
+// ── DATE BADGE ──────────────────────────────────────────────────
+function initDate() {
+  const d = new Date();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('dateBadge').innerHTML = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+// ── TABS ──────────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['delivery','customers','summary'][i] === tab));
+  document.getElementById('tab-delivery').style.display = tab === 'delivery' ? '' : 'none';
+  document.getElementById('tab-customers').style.display = tab === 'customers' ? '' : 'none';
+  document.getElementById('tab-summary').style.display = tab === 'summary' ? '' : 'none';
+  if (tab === 'delivery') renderDelivery();
+  if (tab === 'customers') renderCustomers();
+  if (tab === 'summary') renderSummary();
+}
+
+// ── STATS ──────────────────────────────────────────────────────
+function updateStats() {
+  const total = customers.length;
+  const done = customers.filter(c => deliveryStatus[c.id]?.status === 'done').length;
+  const skipped = customers.filter(c => deliveryStatus[c.id]?.status === 'skipped').length;
+  const pending = total - done - skipped;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statPending').textContent = pending;
+  document.getElementById('statSkip').textContent = skipped;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+// ── FILTER ──────────────────────────────────────────────────────
+function setFilter(f) {
+  currentFilter = f;
+  ['all','pending','done','skipped'].forEach(x => {
+    const el = document.getElementById('chip-' + x);
+    el.className = 'chip' + (x === f ? ' active-chip' : (x==='done'?' chip-done':x==='pending'?' chip-pending':x==='skipped'?' chip-skip':''));
+  });
+  renderDelivery();
+}
+
+// ── DELIVERY LIST ──────────────────────────────────────────────
+function renderDelivery() {
+  updateStats();
+  const q = document.getElementById('searchDelivery').value.toLowerCase();
+  let list = customers.filter(c => c.name.toLowerCase().includes(q) || (c.address||'').toLowerCase().includes(q));
+  if (currentFilter !== 'all') {
+    list = list.filter(c => deliveryStatus[c.id]?.status === currentFilter);
+  }
+
+  const container = document.getElementById('deliveryList');
+  if (list.length === 0) {
+    container.innerHTML = `<div class="no-results">😕 No customers found</div>`;
+    return;
+  }
+
+  // Sort: pending first, then done, then skipped
+  list.sort((a, b) => {
+    const order = { pending: 0, done: 1, skipped: 2 };
+    return (order[deliveryStatus[a.id]?.status] || 0) - (order[deliveryStatus[b.id]?.status] || 0);
+  });
+
+  container.innerHTML = list.map(c => {
+    const st = deliveryStatus[c.id] || { status: 'pending', note: '' };
+    const isDone = st.status === 'done';
+    const isSkip = st.status === 'skipped';
+    const initials = c.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    return `
+    <div class="customer-card ${isDone ? 'is-delivered' : isSkip ? 'is-skipped' : ''}" id="card-${c.id}">
+      <div class="card-main">
+        <div class="cust-avatar" style="background:${c.color}">${initials}</div>
+        <div class="cust-info">
+          <div class="cust-name">${isDone ? '✅ ' : isSkip ? '🚫 ' : ''}${c.name}</div>
+          <div class="cust-meta">
+            ${c.address ? `<span>📍 ${c.address}</span>` : ''}
+            <span class="qty-badge">🥛 ${c.qty}L</span>
+            ${c.time ? `<span class="time-badge">⏰ ${c.time}</span>` : ''}
+          </div>
+          ${st.note ? `<div style="font-size:11px;color:var(--blue-mid);margin-top:4px;font-weight:600;">📝 ${st.note}</div>` : ''}
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="action-btn btn-deliver ${isDone ? 'active-deliver' : ''}" onclick="setStatus('${c.id}','done')">
+          ${isDone ? '✅ Delivered' : '✓ Deliver'}
+        </button>
+        <button class="action-btn btn-skip ${isSkip ? 'active-skip' : ''}" onclick="setStatus('${c.id}','skipped')">
+          🚫 Skip
+        </button>
+        <button class="action-btn btn-note" onclick="toggleNote('${c.id}')">
+          📝 Note
+        </button>
+        <button class="action-btn" onclick="openEditModal('${c.id}')" style="color:var(--grey)">
+          ✏️
+        </button>
+      </div>
+      <div class="note-area" id="note-${c.id}">
+        <input type="text" placeholder="Add a note (e.g. extra 0.5L, rang bell)..." 
+          value="${st.note || ''}" 
+          onchange="saveNote('${c.id}', this.value)"
+          onblur="saveNote('${c.id}', this.value)" />
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setStatus(id, status) {
+  const current = deliveryStatus[id]?.status;
+  if (current === status) {
+    deliveryStatus[id].status = 'pending';
+  } else {
+    deliveryStatus[id] = { ...deliveryStatus[id], status };
+  }
+  save();
+  renderDelivery();
+}
+
+function toggleNote(id) {
+  const el = document.getElementById('note-' + id);
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) el.querySelector('input').focus();
+}
+
+function saveNote(id, val) {
+  deliveryStatus[id] = { ...deliveryStatus[id], note: val };
+  save();
+}
+
+function markAllDelivered() {
+  if (!confirm('Mark ALL pending customers as delivered?')) return;
+  customers.forEach(c => {
+    if (deliveryStatus[c.id]?.status === 'pending') {
+      deliveryStatus[c.id] = { ...(deliveryStatus[c.id] || {}), status: 'done' };
+    }
+  });
+  save();
+  renderDelivery();
+}
+
+function confirmReset() {
+  if (!confirm('Reset today\'s delivery status for all customers?')) return;
+  customers.forEach(c => { deliveryStatus[c.id] = { status: 'pending', note: '' }; });
+  save();
+  renderDelivery();
+}
+
+// ── CUSTOMERS TAB ──────────────────────────────────────────────
+function renderCustomers() {
+  const q = document.getElementById('searchCust').value.toLowerCase();
+  const list = customers.filter(c => c.name.toLowerCase().includes(q) || (c.address||'').toLowerCase().includes(q));
+  const container = document.getElementById('customerList');
+
+  if (list.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="big">👥</div><p>No customers yet.<br>Add your first customer!</p></div>`;
+    return;
+  }
+
+  container.innerHTML = list.map(c => {
+    const initials = c.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+    return `
+    <div class="customer-card">
+      <div class="card-main">
+        <div class="cust-avatar" style="background:${c.color}">${initials}</div>
+        <div class="cust-info">
+          <div class="cust-name">${c.name}</div>
+          <div class="cust-meta">
+            ${c.address ? `<span>📍 ${c.address}</span>` : ''}
+            <span class="qty-badge">🥛 ${c.qty}L/day</span>
+            ${c.time ? `<span class="time-badge">⏰ ${c.time}</span>` : ''}
+          </div>
+          ${c.phone ? `<div style="font-size:11px;color:var(--grey);margin-top:3px;font-weight:600;">📞 ${c.phone}</div>` : ''}
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="action-btn btn-note" onclick="openEditModal('${c.id}')">✏️ Edit</button>
+        <button class="action-btn btn-skip" onclick="deleteCustomer('${c.id}')">🗑️ Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteCustomer(id) {
+  if (!confirm('Delete this customer permanently?')) return;
+  customers = customers.filter(c => c.id !== id);
+  delete deliveryStatus[id];
+  save();
+  renderCustomers();
+  updateStats();
+}
+
+// ── SUMMARY TAB ──────────────────────────────────────────────
+function renderSummary() {
+  const done = customers.filter(c => deliveryStatus[c.id]?.status === 'done');
+  const skipped = customers.filter(c => deliveryStatus[c.id]?.status === 'skipped');
+  const pending = customers.filter(c => deliveryStatus[c.id]?.status === 'pending');
+  const totalL = done.reduce((s, c) => s + parseFloat(c.qty), 0);
+
+  document.getElementById('summaryContent').innerHTML = `
+    <div class="summary-card">
+      <h3>📊 Today's Overview</h3>
+      <div class="summary-row"><span class="name">Total Customers</span><span class="liters">${customers.length}</span></div>
+      <div class="summary-row"><span class="name">✅ Delivered</span><span class="liters" style="color:var(--green)">${done.length}</span></div>
+      <div class="summary-row"><span class="name">🚫 Skipped</span><span class="liters" style="color:var(--red)">${skipped.length}</span></div>
+      <div class="summary-row"><span class="name">⏳ Pending</span><span class="liters" style="color:var(--gold)">${pending.length}</span></div>
+      <div class="summary-row"><span class="name">🥛 Total Milk Delivered</span><span class="liters">${totalL.toFixed(1)}L</span></div>
+    </div>
+    ${skipped.length > 0 ? `
+    <div class="summary-card">
+      <h3>🚫 Skipped Customers</h3>
+      ${skipped.map(c => `
+      <div class="summary-row">
+        <div><div class="name">${c.name}</div><div class="detail">${c.address || ''}</div></div>
+        <span class="liters" style="color:var(--red)">${c.qty}L</span>
+      </div>`).join('')}
+    </div>` : ''}
+    ${pending.length > 0 ? `
+    <div class="summary-card">
+      <h3>⏳ Still Pending</h3>
+      ${pending.map(c => `
+      <div class="summary-row">
+        <div><div class="name">${c.name}</div><div class="detail">${c.address || ''} ${c.time ? '• ' + c.time : ''}</div></div>
+        <span class="liters">${c.qty}L</span>
+      </div>`).join('')}
+    </div>` : ''}
+    <div class="summary-card">
+      <h3>✅ Delivered Customers</h3>
+      ${done.length === 0 ? '<div style="color:var(--grey);font-size:13px;text-align:center;padding:10px">No deliveries done yet</div>' :
+        done.map(c => `
+      <div class="summary-row">
+        <div><div class="name">${c.name}</div><div class="detail">${c.address || ''}</div></div>
+        <span class="liters" style="color:var(--green)">${c.qty}L</span>
+      </div>`).join('')}
+    </div>
+  `;
+}
+
+// ── MODAL ──────────────────────────────────────────────────────
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Add New Customer';
+  document.getElementById('fName').value = '';
+  document.getElementById('fAddress').value = '';
+  document.getElementById('fQty').value = '1';
+  document.getElementById('fTime').value = '6:00 AM';
+  document.getElementById('fPhone').value = '';
+  document.getElementById('custModal').classList.add('open');
+}
+
+function openEditModal(id) {
+  const c = customers.find(x => x.id === id);
+  if (!c) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Edit Customer';
+  document.getElementById('fName').value = c.name;
+  document.getElementById('fAddress').value = c.address || '';
+  document.getElementById('fQty').value = c.qty;
+  document.getElementById('fTime').value = c.time || '';
+  document.getElementById('fPhone').value = c.phone || '';
+  document.getElementById('custModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('custModal').classList.remove('open');
+}
+
+function saveCustomer() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { alert('Please enter a customer name'); return; }
+  const qty = parseFloat(document.getElementById('fQty').value) || 1;
+  if (editingId) {
+    const c = customers.find(x => x.id === editingId);
+    if (c) {
+      c.name = name;
+      c.address = document.getElementById('fAddress').value.trim();
+      c.qty = qty;
+      c.time = document.getElementById('fTime').value.trim();
+      c.phone = document.getElementById('fPhone').value.trim();
+    }
+  } else {
+    const colorIdx = customers.length % COLORS.length;
+    const newC = {
+      id: 'c' + Date.now(),
+      name,
+      address: document.getElementById('fAddress').value.trim(),
+      qty,
+      time: document.getElementById('fTime').value.trim(),
+      phone: document.getElementById('fPhone').value.trim(),
+      color: COLORS[colorIdx]
+    };
+    customers.push(newC);
+    deliveryStatus[newC.id] = { status: 'pending', note: '' };
+  }
+  save();
+  closeModal();
+  if (currentTab === 'delivery') renderDelivery();
+  if (currentTab === 'customers') renderCustomers();
+}
+
+// Close modal on overlay click
+document.getElementById('custModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── INIT ──────────────────────────────────────────────────────
+load();
+initDate();
+renderDelivery();
+</script>
+</body>
+</html>
