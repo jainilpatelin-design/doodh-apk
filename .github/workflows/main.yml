@@ -1,0 +1,116 @@
+# Doodh Delivery Manager APK
+
+## How to Build APK (Automatic - Free)
+
+### Step 1: Go to GitHub
+Open https://github.com and sign in (or create free account)
+
+### Step 2: Create New Repository
+Click "+" → "New repository" → Name it "doodh-apk" → Click "Create repository"
+
+### Step 3: Upload Files
+Click "uploading an existing file" → Drag ALL these files into GitHub → Click "Commit changes"
+
+### Step 4: Wait 2-3 Minutes
+GitHub will automatically build your APK!
+
+### Step 5: Download Your APK
+Go to: Your repo → Actions tab → Click the latest build → Scroll down to "Artifacts" → Download "doodh-delivery-apk"
+
+### Step 6: Install on Phone
+Transfer the APK to your phone → Enable "Install from unknown sources" in Settings → Tap the APK to install
+
+---
+App stores all data in phone's internal storage automatically ✓
+
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = 'DoodhDeliveryManager'
+include ':app'
+
+plugins {
+    id 'com.android.application' version '8.5.1' apply false
+}
+
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+android.useAndroidX=true
+android.nonTransitiveRClass=true
+
+#!/usr/bin/env sh
+##############################################################################
+## Gradle start up script for UN*X
+##############################################################################
+
+# Attempt to set APP_HOME
+PRG="$0"
+while [ -h "$PRG" ] ; do
+    ls=$(ls -ld "$PRG")
+    link=$(expr "$ls" : '.*-> \(.*\)$')
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=$(dirname "$PRG")"/$link"
+    fi
+done
+SAVED="$(pwd)"
+cd "$(dirname \"$PRG\")/" >/dev/null
+APP_HOME="$(pwd -P)"
+cd "$SAVED" >/dev/null
+
+CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+
+# Use the maximum available, or set MAX_FD != -1 to use that value.
+MAX_FD="maximum"
+
+warn () {
+    echo "$*"
+}
+
+die () {
+    echo
+    echo "$*"
+    echo
+    exit 1
+}
+
+# OS specific support (must be 'true' or 'false').
+cygwin=false
+msys=false
+darwin=false
+nonstop=false
+case "$(uname)" in
+  CYGWIN* )
+    cygwin=true
+    ;;
+  Darwin* )
+    darwin=true
+    ;;
+  MINGW* )
+    msys=true
+    ;;
+  NONSTOP* )
+    nonstop=true
+    ;;
+esac
+
+JAVA_EXE=java
+if [ -n "$JAVA_HOME" ] ; then
+    JAVA_EXE="$JAVA_HOME/bin/java"
+fi
+
+exec "$JAVA_EXE" \
+    -classpath "$CLASSPATH" \
+    org.gradle.wrapper.GradleWrapperMain \
+    "$@"
